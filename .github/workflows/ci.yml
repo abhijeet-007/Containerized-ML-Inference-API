@@ -12,7 +12,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-        
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
@@ -28,7 +27,7 @@ jobs:
       - name: Run tests
         run: pytest test_app.py -v
 
-      - name: upload built artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-artifacts
@@ -41,42 +40,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.11"
+          name: app-artifacts
+          path: .
 
-      - name: Train model
-        run: |
-          pip install scikit-learn numpy
-          python train_model.py
-
-      # - name: Log in to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # - name: Build and push Docker image
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     push: true
-      #     tags: ${{ secrets.DOCKERHUB_USERNAME }}/ml-inference-api:latest
-  docker-build:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
         with:
-          python-version: "3.11"
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Train model
-        run: |
-          pip install scikit-learn numpy
-          python train_model.py
-
-      - name: Build Docker image
-        run: docker build -t ml-api:latest .
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ml-inference-api:latest
