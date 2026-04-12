@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download the artifacts from build job
         uses: actions/download-artifact@v4
         with:
@@ -21,4 +23,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: List downloaded files
-        run: ls ./artifacts    
+        run: ls ./artifacts
+
+      - name: Move model to root
+        run: mv ./artifacts/model.pkl ./model.pkl
