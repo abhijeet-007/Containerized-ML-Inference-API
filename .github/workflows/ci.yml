@@ -28,7 +28,7 @@ jobs:
       - name: Run tests
         run: pytest test_app.py -v
       - name: upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-artifacts
           path: /dist
