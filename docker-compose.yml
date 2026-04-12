@@ -1,0 +1,18 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=/models/model.pkl
+    volumes:
+      - ./models:/models
+  test:
+    build: .
+    command: pytest test_app.py -v
+    depends_on:
+      - api
+    environment:
+      - MODEL_PATH=/models/model.pkl
+    volumes:
+      - ./models:/models
