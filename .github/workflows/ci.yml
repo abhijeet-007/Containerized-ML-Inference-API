@@ -56,3 +56,21 @@ jobs:
       #     context: .
       #     push: true
       #     tags: ${{ secrets.DOCKERHUB_USERNAME }}/ml-inference-api:latest
+  docker-build:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Train model
+        run: |
+          pip install scikit-learn numpy
+          python train_model.py
+
+      - name: Build Docker image
+        run: docker build -t ml-inference-api:latest .   
