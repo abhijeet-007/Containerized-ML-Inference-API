@@ -79,4 +79,4 @@ jobs:
           python train_model.py
 
       - name: Build Docker image
-        run: docker build -t ml-inference-api:latest .   
+        run: docker build -t ml-api:latest .
