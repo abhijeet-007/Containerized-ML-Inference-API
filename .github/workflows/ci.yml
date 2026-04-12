@@ -27,7 +27,11 @@ jobs:
 
       - name: Run tests
         run: pytest test_app.py -v
-
+      - name: upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-artifacts
+          path: /dist
   build-and-push:
     needs: build-and-test
     runs-on: ubuntu-latest
