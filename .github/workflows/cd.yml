@@ -4,26 +4,24 @@ on:
   workflow_run:
     workflows: [CI]
     types:
-        - completed
+      - completed
     branches:
-        - main
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Download the artifacts from build job
-        uses: actions/download-artifact@v4
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          name: app-artifacts
-          path: ./artifacts
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: List downloaded files
-        run: ls ./artifacts
-
-      - name: Move model to root
-        run: mv ./artifacts/model.pkl ./model.pkl
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ml-inference-api:latest
+            docker stop ml-api || true
+            docker rm ml-api || true
+            docker run -d --name ml-api -p 8000:8000 --restart unless-stopped \
+              ${{ secrets.DOCKERHUB_USERNAME }}/ml-inference-api:latest
